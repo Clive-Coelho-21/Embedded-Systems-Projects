@@ -2,8 +2,6 @@
 #include"State.h"
 #include"Lookup_Table.h"
 
-//extern AC_State currentState; /*= {"OFF","COOL","24","Medium",false,false,false};*/
-
 bool isStateChanged(const AC_State& S)
 {
     if(S.Power != currentState.Power || S.Mode != currentState.Mode || S.Temp != currentState.Temp || S.Fan_Speed != currentState.Fan_Speed || 

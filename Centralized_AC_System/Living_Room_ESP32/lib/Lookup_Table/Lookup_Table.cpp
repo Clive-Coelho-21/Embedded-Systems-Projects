@@ -2,8 +2,8 @@
 
 const AC_Val1 Toggle[] =
 {
-    {"ON","COOL","24","Medium",0x92}, // Turn ON AC
-    {"OFF","--","--","--",0xC005} // Turn OFF AC
+    {"ON","COOL","24","Medium",0x92}, 
+    {"OFF","--","--","--",0xC005} 
 };
 const size_t ToggleSize = sizeof(Toggle) / sizeof(Toggle[0]);
 

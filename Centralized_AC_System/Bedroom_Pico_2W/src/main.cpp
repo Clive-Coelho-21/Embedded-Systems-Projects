@@ -1,4 +1,3 @@
-#include<Arduino.h>
 #include<WiFi.h>
 #include<PubSubClient.h>
 #include<DHT.h>
@@ -7,9 +6,9 @@
 #include"State.h"
 #include"Lookup_Table.h"
 
-#define DHT_PIN  21
-#define TYPE     DHT22
-#define SEND_PIN 18 
+#define DHT_PIN 14
+#define TYPE DHT22
+#define SEND_PIN 13
 
 #define ADDRESS 0x88
 #define REPEATS 1
@@ -74,7 +73,7 @@ void loop()
   if(currenttime - lasttime2 > 1000)
   {
     char Heatbeat[] = "ALIVE";
-    client.publish("Living_Room/Heartbeat",Heatbeat);
+    client.publish("Bedroom/Heartbeat",Heatbeat);
 
     lasttime2 = currenttime;
   }
@@ -93,24 +92,20 @@ void loop()
     {
       char tempString[8];
       dtostrf(temp,1,2,tempString);
-      client.publish("Living_Room/Temperature",tempString);
+      client.publish("Bedroom/Temperature",tempString);
 
       char humString[8];
       dtostrf(hum,1,2,humString);
-      client.publish("Living_Room/Humidity",humString);
+      client.publish("Bedroom/Humidity",humString);
     }
 
     lasttime1 = currenttime;
   }
 }
 
-void callback(char* topic, byte* payload, unsigned int length) 
+void callback(char* topic,byte* payload,unsigned int length) 
 {
-  if (!payload || length == 0) {
-    return; 
-  }
-
-  StaticJsonDocument<512> doc;
+  DynamicJsonDocument doc(512);
   deserializeJson(doc,payload,length);
   Serial.print("Message arrived on topic: ");
   Serial.println(topic);
@@ -118,7 +113,7 @@ void callback(char* topic, byte* payload, unsigned int length)
   serializeJsonPretty(doc,Serial);
   Serial.println();
 
-  if(strcmp(topic,"Living_Room/Power") == 0)
+  if(strcmp(topic,"Bedroom/Power") == 0) 
   {
     AC_State newState;
     newState.Power = doc["Power"].as<String>();
@@ -129,7 +124,7 @@ void callback(char* topic, byte* payload, unsigned int length)
     newState.Plasma = false;
     newState.Auto_Clean = false;
     
-    if(!isStateChanged(newState))
+    if(!isStateChanged(newState)) 
       return;
 
     for(size_t i = 0; i < ToggleSize; i++)
@@ -143,7 +138,7 @@ void callback(char* topic, byte* payload, unsigned int length)
     }
   }
 
-  if(strcmp(topic,"Living_Room/LUT2") == 0) 
+  if(strcmp(topic,"Bedroom/LUT2") == 0) 
   {
     for(size_t i = 0;i < LUT2Size;i++)
     {
@@ -169,7 +164,7 @@ void callback(char* topic, byte* payload, unsigned int length)
       else if(strcmp("Stop Autoclean",cmd) == 0)
         newState.Auto_Clean = false;
 
-      if(!isStateChanged(newState))
+      if(!isStateChanged(newState)) 
         return;
 
       if(strcmp(LUT2[i].str,cmd) == 0)
@@ -181,7 +176,7 @@ void callback(char* topic, byte* payload, unsigned int length)
     } 
   }
 
-  if(strcmp(topic,"Living_Room/LUT1") == 0) 
+  if(strcmp(topic,"Bedroom/LUT1") == 0) 
   {
     AC_State newState;
     newState.Power = doc["Power"].as<String>();
@@ -213,12 +208,12 @@ void reconnect()
   while (!client.connected()) 
   {
     Serial.print("Attempting MQTT connection...");
-    if(client.connect("Living_Room_AC",User,Pass)) 
+    if(client.connect("Bedroom_AC",User,Pass)) 
     {
       Serial.println("Connected to MQTT Broker");
-      client.subscribe("Living_Room/LUT1");
-      client.subscribe("Living_Room/LUT2");
-      client.subscribe("Living_Room/Power");
+      client.subscribe("Bedroom/LUT1");
+      client.subscribe("Bedroom/LUT2");
+      client.subscribe("Bedroom/Power");
     } 
     else 
     {
